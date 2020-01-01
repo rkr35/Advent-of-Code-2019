@@ -1,20 +1,24 @@
 #![warn(clippy::pedantic)]
 #![allow(clippy::must_use_candidate)]
 
-use std::fs::File;
-use std::io::{BufRead, BufReader};
+use std::io::BufRead;
 
 fn main() {
-    let mut f = File::open("input.txt")
-        .map(BufReader::new)
-        .expect("unable to open input file");
+    let mut input = utilities::get_input_file();
 
     let mut current_line = String::new();
     let mut fuel_requirement = 0;
     let fuel = |mass| mass / 3 - 2;
 
-    while f.read_line(&mut current_line).expect("unable to read line from input file") != 0 {
-        let mass: i32 = current_line.trim_end().parse().expect("unable to parse mass");
+    while input
+        .read_line(&mut current_line)
+        .expect("unable to read line from input file") != 0
+    {
+        let mass: i32 = current_line
+            .trim_end()
+            .parse()
+            .expect("unable to parse mass");
+
         current_line.clear();
 
         let mut f = fuel(mass);
