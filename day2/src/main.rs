@@ -3,6 +3,11 @@
 
 use std::io::Read;
 
+type Int = usize;
+
+#[derive(Copy, Clone)]
+struct StartValues(Int, Int);
+
 fn main() {
     let mut program = String::new();
     
@@ -10,7 +15,7 @@ fn main() {
         .read_to_string(&mut program)
         .expect("unable to read input file into string");
     
-    let mut program: Vec<usize> = program
+    let program: Vec<Int> = program
         .split(',')
         .map(|p| p
             .trim_end()
@@ -19,15 +24,21 @@ fn main() {
         )
         .collect();
 
-    // "...before running the program, replace position 1 with the value 12 and 
-    // replace position 2 with the value 2."
-    *program.get_mut(1).expect("position 1 doesn't exist") = 12;
-    *program.get_mut(2).expect("position 2 doesn't exist") = 2;
+    println!("part1 = {:?}", run(StartValues(12, 2), program.clone()));
 
+    let [noun, verb] = part2(&program).expect("unable to find noun-verb");
+    println!("part2: [noun, verb, 100 * noun + verb] = [{}, {}, {}]",
+        noun, verb, 100 * noun + verb);
+}
+    
+fn run(start_values: StartValues, mut program: Vec<Int>) -> Option<Int> {
+    *program.get_mut(1).expect("position 1 doesn't exist") = start_values.0;
+    *program.get_mut(2).expect("position 2 doesn't exist") = start_values.1;
+    
     for i in (0..program.len()).step_by(4) {
-        const ADD: usize = 1;
-        const MULTIPLY: usize = 2;
-        const STOP: usize = 99;
+        const ADD: Int = 1;
+        const MULTIPLY: Int = 2;
+        const STOP: Int = 99;
 
         let opcode = *program.get(i).expect("expected opcode");
         
@@ -50,6 +61,15 @@ fn main() {
         };
     }
 
+    program.get(0).copied()
+}
 
-    println!("{:?}", program.get(0));
+fn part2(program: &[Int]) -> Option<[Int; 2]> {
+    const MAX_CELL_VALUE: usize = 100;
+    const TARGET_OUTPUT: usize = 19690720;
+    (0..MAX_CELL_VALUE)
+        .flat_map(|noun| (0..MAX_CELL_VALUE).map(move |verb| [noun, verb]))
+        .find(|[noun, verb]| run(StartValues(*noun, *verb), program.to_vec())
+            .map_or(false, |output| output == TARGET_OUTPUT)
+        )
 }
