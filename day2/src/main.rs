@@ -36,16 +36,16 @@ fn run(noun: Int, verb: Int, mut program: Vec<Int>) -> Option<Int> {
         const ADD: Int = 1;
         const MULTIPLY: Int = 2;
         const STOP: Int = 99;
-
+        
         let opcode = *program.get(i).expect("expected opcode");
         
-        let left = program.get(i+1).expect("expected left operand");
-        let left = *program.get(*left).expect("left position doesn't exist");
+        let [left, right, store] = {
+            let o = |i| *program.get(i).expect("missing operand");
+            let p = |i| *program.get(i).expect("position doesn't exist");
+            let op = |i| o(p(i));
+            [op(i+1), op(i+2), p(i+3)]
+        };
 
-        let right = program.get(i+2).expect("expected left operand");
-        let right = *program.get(*right).expect("right position doesn't exist");
-
-        let store = *program.get(i+3).expect("expected store operand");
         let store = program
             .get_mut(store)
             .expect("store position doesn't exist");
@@ -62,8 +62,8 @@ fn run(noun: Int, verb: Int, mut program: Vec<Int>) -> Option<Int> {
 }
 
 fn part2(program: &[Int]) -> Option<[Int; 2]> {
-    const MAX_CELL_VALUE: usize = 100;
-    const TARGET_OUTPUT: usize = 19690720;
+    const MAX_CELL_VALUE: Int = 100;
+    const TARGET_OUTPUT: Int = 19690720;
     (0..MAX_CELL_VALUE)
         .flat_map(|noun| (0..MAX_CELL_VALUE).map(move |verb| [noun, verb]))
         .find(|[noun, verb]| run(*noun, *verb, program.to_vec())
