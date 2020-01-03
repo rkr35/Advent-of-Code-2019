@@ -5,9 +5,6 @@ use std::io::Read;
 
 type Int = usize;
 
-#[derive(Copy, Clone)]
-struct StartValues(Int, Int);
-
 fn main() {
     let mut program = String::new();
     
@@ -24,16 +21,16 @@ fn main() {
         )
         .collect();
 
-    println!("part1 = {:?}", run(StartValues(12, 2), program.clone()));
+    println!("part1 = {:?}", run(12, 2, program.clone()));
 
     let [noun, verb] = part2(&program).expect("unable to find noun-verb");
     println!("part2: [noun, verb, 100 * noun + verb] = [{}, {}, {}]",
         noun, verb, 100 * noun + verb);
 }
     
-fn run(start_values: StartValues, mut program: Vec<Int>) -> Option<Int> {
-    *program.get_mut(1).expect("position 1 doesn't exist") = start_values.0;
-    *program.get_mut(2).expect("position 2 doesn't exist") = start_values.1;
+fn run(noun: Int, verb: Int, mut program: Vec<Int>) -> Option<Int> {
+    *program.get_mut(1).expect("position 1 doesn't exist") = noun;
+    *program.get_mut(2).expect("position 2 doesn't exist") = verb;
     
     for i in (0..program.len()).step_by(4) {
         const ADD: Int = 1;
@@ -69,7 +66,7 @@ fn part2(program: &[Int]) -> Option<[Int; 2]> {
     const TARGET_OUTPUT: usize = 19690720;
     (0..MAX_CELL_VALUE)
         .flat_map(|noun| (0..MAX_CELL_VALUE).map(move |verb| [noun, verb]))
-        .find(|[noun, verb]| run(StartValues(*noun, *verb), program.to_vec())
+        .find(|[noun, verb]| run(*noun, *verb, program.to_vec())
             .map_or(false, |output| output == TARGET_OUTPUT)
         )
 }
